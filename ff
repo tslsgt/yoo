@@ -1,0 +1,34 @@
+import discord
+from discord.ext import commands
+
+# Crie o bot com um prefixo de comando
+intents = discord.Intents.default()
+intents.message_content = True  # Necessário para ler mensagens
+intents.members = True  # Necessário para ler mudanças de estado de membros
+bot = commands.Bot(command_prefix="!", intents=intents)
+
+# Evento quando o bot estiver pronto e conectado
+@bot.event
+async def on_ready():
+    print(f'Bot {bot.user} está online!')
+
+# Evento para avisar quando alguém entra em um canal de voz
+@bot.event
+async def on_voice_state_update(member, before, after):
+    # Verifica se o membro entrou em um canal de voz
+    if before.channel is None and after.channel is not None:
+        channel = after.channel
+        # Envia uma mensagem para todos no canal de texto
+        for guild in bot.guilds:  # Para percorrer todos os servidores em que o bot está
+            for text_channel in guild.text_channels:  # Para percorrer todos os canais de texto
+                if text_channel.name == "geral":  # Substitua "geral" pelo nome do canal de texto desejado
+                    await text_channel.send(f"{member.name} entrou no canal de voz {channel.name}!")
+                    break
+
+# Comando simples que responde "Olá!"
+@bot.command()
+async def ola(ctx):
+    await ctx.send("Olá, eu sou um bot!")
+
+# Rodar o bot com o seu token
+bot.run('SEU_TOKEN_AQUI')
